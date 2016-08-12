@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="cc.doublez.dao.JobDao">
+    <sql id="jobColumns">
+        id,
+        job_name AS jobName,
+        job_group AS jobGroup,
+        job_class AS jobClass,
+        trigger_name AS  triggerName,
+        trigger_group AS triggerGroup,
+        cron_expression AS cronExpression,
+        state,
+        context,
+        description,
+        date_format(created_time,'%Y-%m-%d %T') as createdTime,
+        status,
+        success_times AS successTimes,
+        fail_times AS failTimes
+    </sql>
+    <insert id="insert" parameterType="ScheduleJob" useGeneratedKeys="true" keyProperty="id">
+        insert into t_job(
+        job_name,
+        job_group,
+        job_class,
+        trigger_name,
+        trigger_group,
+        cron_expression,
+        state,
+        context,
+        description,
+        created_time,
+        status,
+        success_times,
+        fail_times
+        )
+        values
+        (
+        #{jobName,jdbcType=VARCHAR},
+        #{jobGroup,jdbcType=VARCHAR},
+        #{jobClass,jdbcType=VARCHAR},
+        #{triggerName,jdbcType=VARCHAR},
+        #{triggerGroup,jdbcType=VARCHAR},
+        #{cronExpression,jdbcType=VARCHAR},
+        #{state,jdbcType=VARCHAR},
+        #{context,jdbcType=VARCHAR},
+        #{description,jdbcType=VARCHAR},
+        sysdate(),
+        #{status,jdbcType=NUMERIC},
+        #{successTimes,jdbcType=NUMERIC},
+        #{failTimes,jdbcType=NUMERIC}
+        )
+    </insert>
+    <select id="list" resultType="ScheduleJob">
+        select <include refid="jobColumns"/>
+        from t_job
+    </select>
+
+    <select id="getById" resultType="ScheduleJob">
+        select <include refid="jobColumns"/>
+        from t_job
+        where id=#{id,jdbcType=NUMERIC}
+    </select>
+
+    <update id="update" parameterType="Map">
+        UPDATE t_job
+        <set>
+            <if test="state != null and state != ''">
+                state=#{state, jdbcType=VARCHAR},
+            </if>
+        </set>
+        where id=#{id,jdbcType=NUMERIC}
+    </update>
+</mapper>

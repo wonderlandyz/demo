@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>菜单</title>
+    <link href="${request.contextPath}/html/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="${request.contextPath}/html/css/login.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <p>${message}</p>
+    <a href="/x3i9ze7w/user/add">添加用户</a>
+    <a href="/x3i9ze7w/user/list">用户列表</a>
+    <br>
+    <a href="/x3i9ze7w/job/list">任务列表</a>
+    <br>
+    <a href="/x3i9ze7w/init">更新权限</a>
+</div>
+</body>
+</html>

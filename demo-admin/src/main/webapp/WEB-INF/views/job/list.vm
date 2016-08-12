@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- 上述3个meta标签*必须*放在最前面，任何其他内容都*必须*跟随其后！ -->
+    <title>Job List</title>
+    <link href="${request.contextPath}/html/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body>
+<h2 class="sub-header">任务列表</h2>
+<table class="table table-striped">
+    <thead>
+    <tr>
+        <th>#</th>
+        <th>任务名</th>
+        <th>任务描述</th>
+        <th>执行时间</th>
+        <th>状态</th>
+        <th>操作</th>
+    </tr>
+    </thead>
+    <tbody>
+    #foreach($one in $results)
+    <tr>
+        <td>${one.id}</td>
+        <td>${one.jobName}</td>
+        <td>${one.description}</td>
+        <td>${one.cronExpression}</td>
+        <td>${one.state}</td>
+        <td>
+            <a href="update?id=$!{one.id}">修改</a>
+            <a href="delete?id=$!{one.id}"  onclick="if(confirm('确定删除?')==false)return false;">删除</a>
+            <a href="stop?id=$!{one.id}">停止</a>
+            <a href="schedule?id=$!{one.id}">计划执行</a>
+            <a href="run?id=$!{one.id}">执行一次</a>
+        </td>
+    </tr>
+    #end
+    </tbody>
+</table>
+</div>
+
+<script src="${request.contextPath}/html/js/jquery-1.11.3.js"></script>
+<script src="${request.contextPath}/html/bootstrap/js/bootstrap.min.js"></script>
+</body>
+</html>

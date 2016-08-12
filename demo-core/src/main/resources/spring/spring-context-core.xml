@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+           http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd
+           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+           http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+
+    <import resource="classpath*:/spring-context-mybatis.xml"/>
+    <import resource="redis-context.xml"/>
+    <import resource="jms-context.xml"/>
+    <import resource="spring-context-bean.xml"/>
+
+    <context:property-placeholder location="classpath:config.properties" ignore-unresolvable="true"/>
+    <!-- Spring注解驱动 -->
+    <context:annotation-config/>
+    <!-- 静态资源访问 -->
+    <mvc:default-servlet-handler/>
+    <!--
+    Spring加载时使用父子容器,root-context为父容器,spring-mvc是子容器.
+    Web容器启动时,加载配置文件顺序为web.xml....root-context(Spring配置文件)....servlet-context(SpringMVC配置文件)
+    由于root-context.xml配置文件中Controller会先进行扫描装配,但是此时service还没有进行事务增强处理
+    得到的将是原样的Service(没有经过事务加强处理，故而没有事务处理能力),所以必须在root-context.xml中不扫描Controller
+    -->
+    <context:component-scan base-package="cc.doublez">
+      <context:exclude-filter type="annotation" expression="org.springframework.stereotype.Controller"/>
+    </context:component-scan>
+    <!-- 或者直接扫描service
+    <context:component-scan base-package="cc.doublez.service"/>
+    对应spring-mvc中的<context:component-scan base-package="cn.springmvc.controller"/>
+    -->
+    <!-- 启动对@AspectJ注解的支持 -->
+    <aop:aspectj-autoproxy/>
+
+</beans>

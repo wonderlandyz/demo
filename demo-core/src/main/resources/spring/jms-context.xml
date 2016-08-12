@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:jms="http://www.springframework.org/schema/jms"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+              http://www.springframework.org/schema/jms
+              http://www.springframework.org/schema/jms/spring-jms-4.0.xsd
+              http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+
+       <context:property-placeholder location="classpath:activemq.properties" ignore-unresolvable="true"/>
+       <!-- Activemq connection factory -->
+       <bean id="amqConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+              <constructor-arg index="0" ><value>${jms.activemq.username}</value></constructor-arg>
+              <constructor-arg index="1" ><value>${jms.activemq.password}</value></constructor-arg>
+              <constructor-arg index="2" ><value>${jms.broker.url}</value></constructor-arg>
+       </bean>
+       <bean id="connectionFactory" class="org.springframework.jms.connection.CachingConnectionFactory">
+              <constructor-arg ref="amqConnectionFactory" />
+       </bean>
+
+       <!-- 消息队列模式（发布者）-->
+       <bean id="jmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+              <property name = "connectionFactory" ref="connectionFactory" />
+              <!-- 也可以在程序中指定-->
+             <!-- <property name="defaultDestination" ref="queueDestination" />-->
+       </bean>
+       <bean id="queueDestination" class="org.apache.activemq.command.ActiveMQQueue">
+              <constructor-arg value = "test.queue" />
+       </bean>
+
+       <!--订阅发布模式(发布者) -->
+       <bean id="topicJmsTemplate" class="org.springframework.jms.core.JmsTemplate">
+              <property name = "connectionFactory" ref="connectionFactory" />
+              <property name = "pubSubDomain" value="true" />
+              <!--<property name="defaultDestination" ref="topicDestination" />-->
+       </bean>
+       <bean id="topicDestination" class="org.apache.activemq.command.ActiveMQTopic">
+              <constructor-arg index="0" value = "test.topic" />
+       </bean>
+
+       <!--订阅者 -->
+       <bean id="messageSubscriber1" class="cc.doublez.platform.jms.Subscriber1" />
+       <bean id="messageSubscriber2" class="cc.doublez.platform.jms.Subscriber2" />
+       <jms:listener-container destination-type="topic" container-type="default" connection-factory="connectionFactory" acknowledge="auto">
+              <jms:listener destination="test.topic" ref="messageSubscriber1"/>
+              <jms:listener destination="test.topic" ref="messageSubscriber2"/>
+       </jms:listener-container>
+
+       <!--监听者-->
+       <bean id="messageListener" class="cc.doublez.platform.jms.ReceiveService"/>
+       <jms:listener-container destination-type="queue" container-type="default" connection-factory="connectionFactory" acknowledge="auto">
+              <jms:listener destination="test.queue" ref="messageListener"/>
+       </jms:listener-container>
+       <!-- 或者   -->
+       <!--<bean id="jmsContainer" class="org.springframework.jms.listener.DefaultMessageListenerContainer">
+       从哪里监听
+       <propertyname="connectionFactory" ref="connectionFactory"/>
+       监听目的地
+       <propertyname="destination" ref="queue"/>
+       处理
+       <propertyname="messageListener" ref="messageListener"/>
+       </bean>-->
+</beans>

@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd
+       http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+       http://www.springframework.org/schema/util
+       http://www.springframework.org/schema/util/spring-util.xsd">
+
+    <description>Shiro配置</description>
+    <!-- Define the realm you want to use to connect to your back-end security datasource: -->
+    <bean id="myRealm" class="cc.doublez.platform.shiro.realm.MyRealm">
+    </bean>
+
+    <bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
+        <!-- 会话管理 会使HttpSessionListener失效-->
+       <!-- <property name="sessionManager" ref="sessionManager" />-->
+        <!--缓存 -->
+        <property name="cacheManager" ref="cacheManager" />
+        <property name="realm" ref="myRealm"/>
+    </bean>
+    <bean id="sessionManager" class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager">
+        <property name="sessionDAO" ref="sessionDAO" />
+        <!--<property name="sessionListeners" >
+            <list>
+                <ref bean="shiroListener" />
+            </list>
+        </property>-->
+    </bean>
+    <!--<bean id="shiroListener" class="cc.doublez.platform.shiro.filter.ShiroListener"></bean>-->
+    <bean id="sessionDAO" class="cc.doublez.platform.cache.RedisSessionDao"></bean>
+    <!-- 保证实现了Shiro内部lifecycle函数的bean执行 -->
+    <bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
+    <!-- 开启Shiro注解 -->
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" depends-on="lifecycleBeanPostProcessor"/>
+    <!-- 配置切面类 -->
+    <bean class="org.apache.shiro.spring.security.interceptor.AuthorizationAttributeSourceAdvisor">
+        <property name="securityManager" ref="securityManager"/>
+    </bean>
+
+    <bean id="shiroManager" class="cc.doublez.platform.shiro.manager.ShiroManager"/>
+    <bean id="login" class="cc.doublez.platform.shiro.filter.LoginFilter"/>
+    <bean id="role" class="cc.doublez.platform.shiro.filter.RoleFilter"/>
+ <!--   <bean id="permission" class="cc.doublez.platform.shiro.filter.PermissionFilter"/>-->
+
+    <bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
+        <property name="securityManager" ref="securityManager"/>
+        <property name="loginUrl" value="/x3i9ze7w/login"/>
+        <property name="successUrl" value="/"/>
+        <property name="unauthorizedUrl" value="/x3i9ze7w/unauthorized"/>
+        <property name="filters">
+            <util:map>
+                <!--<entry key="role" value-ref="role"></entry>-->
+                <entry key="login" value-ref="login"></entry>
+                <entry key="roles" value-ref="role"></entry>
+            </util:map>
+        </property>
+<!--        <property name="filterChainDefinitions">
+            &lt;!&ndash; 初始配置&ndash;&gt;
+            <value>
+                /html/**=anon
+                / = anon
+                /x3i9ze7w/login = anon
+                /x3i9ze7w/unauthorized = anon
+                /x3i9ze7w/success = authc
+                /x3i9ze7w/logout = logout
+                /**=login
+                &lt;!&ndash; [normal,admin]且的关系 &ndash;&gt;
+                /x3i9ze7w/user/**=roles[guest]
+                /x3i9ze7w/job/**=roles[admin]
+            </value>
+        </property>-->
+        <!-- 读取初始自定义权限内容-->
+        <property name="filterChainDefinitions" value="#{shiroManager.loadFilterChainDefinitions()}"/>
+    </bean>
+
+    <context:property-placeholder location="classpath:redis.properties" ignore-unresolvable="true"/>
+    <bean id="cacheManager" class="org.crazycake.shiro.RedisCacheManager">
+        <property name="redisManager" ref="redisManager" />
+    </bean>
+    <bean id="redisManager" class="org.crazycake.shiro.RedisManager">
+        <property name="host" value="${redis.host}"/>
+        <property name="port" value="${redis.port}"/>
+        <property name="expire" value="1800"/>
+        <property name="timeout" value="${redis.timeout}"/>
+        <property name="password" value="${redis.pass}"/>
+    </bean>
+</beans>

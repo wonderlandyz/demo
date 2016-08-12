@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="utf-8">
+	<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+	<meta http-equiv="X-UA-Compatible" content="IE=edge">
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+	<title>登陆</title>
+    <script src="${request.contextPath}/html/js/jquery-1.11.3.js"></script>
+    <link href="${request.contextPath}/html/bootstrap/css/bootstrap.min.css" rel="stylesheet">
+    <link href="${request.contextPath}/html/css/login.css" rel="stylesheet">
+</head>
+<body>
+<div class="container">
+    <form class="form-signin" role="form" action="${request.contextPath}/x3i9ze7w/login" method="post">
+        <h2 class="text-center">后台登陆</h2>
+        <input type="text" name="phone" class="form-control" placeholder="用户名" required autofocus>
+        <input type="password" name="password" class="form-control" placeholder="密码" required>
+        #*验证码<input type="text" name="validateCode" />
+        <span onclick="javascript:reloadValidateCode()"><img id="validateCodeImg" width="80px" height="38px"  src="${request.contextPath}/x3i9ze7w/validateCode"/></span>*#
+        <div class="clearfix">
+            <div class="checkbox pull-left">
+                <label>
+                    <input type="checkbox" id="remberUserName"> 记住密码
+                </label>
+            </div>
+        </div>
+        <button class="btn btn-lg btn-primary btn-block" type="submit">登陆</button>
+		当前在线人数：$!{count}
+    </form>
+</div>
+<script type="application/javascript">
+    function reloadValidateCode(){
+        $("#validateCodeImg").attr("src","${request.contextPath}/x3i9ze7w/validateCode?data=" + new Date() + Math.floor(Math.random()*24));
+    }
+</script>
+</body>
+</html>
